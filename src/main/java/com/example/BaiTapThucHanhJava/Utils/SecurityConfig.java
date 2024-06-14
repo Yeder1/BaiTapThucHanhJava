@@ -1,8 +1,6 @@
 package com.example.BaiTapThucHanhJava.Utils;
 
-
 import com.example.BaiTapThucHanhJava.services.CustomUserDetailService;
-import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -19,13 +17,16 @@ import org.springframework.security.web.SecurityFilterChain;
 @EnableMethodSecurity
 public class SecurityConfig {
 
+    @Bean
     public UserDetailsService userDetailsService() {
         return new CustomUserDetailService();
     }
+
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
     @Bean
     public DaoAuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider auth = new DaoAuthenticationProvider();
@@ -33,41 +34,32 @@ public class SecurityConfig {
         auth.setPasswordEncoder(passwordEncoder());
         return auth;
     }
+
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws
-            Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf().disable()
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers( "/css/**", "/js/**", "/", "/register",
-                                "/error")
+                        .requestMatchers( "/css/**", "/js/**", "/", "/register", "/error")
                         .permitAll()
-
                         .requestMatchers( "/books/edit", "/books/delete")
-
-                        .authenticated()
-
+                        .hasAnyAuthority("ADMIN")
                         .requestMatchers("/books", "/books/add")
-
-                        .authenticated()
-
+                        .hasAnyAuthority("ADMIN", "USER")
+                        .requestMatchers("/api/**")
+                        .hasAnyAuthority("ADMIN", "USER")
                         .anyRequest().authenticated()
-
                 )
                 .logout(logout -> logout.logoutUrl("/logout")
                         .logoutSuccessUrl("/login")
                         .deleteCookies("JSESSIONID")
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
-
                         .permitAll()
-
                 )
                 .formLogin(formLogin -> formLogin.loginPage("/login")
                         .loginProcessingUrl("/login")
                         .defaultSuccessUrl("/")
-
                         .permitAll()
-
                 )
                 .rememberMe(rememberMe -> rememberMe.key("uniqueAndSecret")
                         .tokenValiditySeconds(86400)

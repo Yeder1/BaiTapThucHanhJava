@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+    <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org"
       xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity4"
         lang="en">
@@ -18,7 +18,7 @@
             <th>Author</th>
             <th>Price</th>
             <th>Category</th>
-            <th sec:authorrize="hasAnyAuthority">Action</th>
+            <th sec:authorrize="hasAnyAuthority('ADMIN')">Action</th>
         </tr>
         <tr th:each="book : ${books}">
             <td th:text="${book.id}"></td>
@@ -26,7 +26,7 @@
             <td th:text="${book.author}"></td>
             <td th:text="${book.price}"></td>
             <td th:text="${book.category.name}"></td>
-            <td sec:authorize="hasAnyAuthority('AD')">
+            <td sec:authorize="hasAnyAuthority('ADMIN')">
                 <a th:href="@{/books/edit/{id}(id=${book.id})}">Edit</a> |
                 <a th:href="@{/books/delete/{id}(id=${book.id})}"
                    onclick="return confirm('Are you sure?')">Delete</a>
@@ -34,6 +34,9 @@
         </tr>
     </table>
 </div>
+
 <th:block th:replace="layout :: footer"></th:block>
 </body>
 </html>
+
+
